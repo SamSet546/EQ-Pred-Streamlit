@@ -3,3 +3,10 @@ pandas
 numpy
 scikit-learn
 geopy
+seaborn
+pydeck
+matplotlib
+shap
+xgboost
+time
+statsmodels
