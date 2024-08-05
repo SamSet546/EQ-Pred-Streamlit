@@ -381,7 +381,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def heatmap(df):
-    #Correlation to the target/dependent variable: magnitude
+    # Correlation to the target/dependent variable: magnitude
     target_col = 'magnitude_3.7'
 
     # Convert boolean columns to integers 0 or 1
@@ -393,16 +393,21 @@ def heatmap(df):
     # Select only numeric columns
     df_numeric = df.select_dtypes(include=[float, int])
     
-    k = 15  #Number of variables to show in the heatmap
+    k = 15  # Number of variables to show in the heatmap
     cols = df_numeric.corr().nlargest(k, target_col)[target_col].index
-    cm = df_numeric[cols].corr()  #Correlation matrix
-    plt.figure(figsize=(14,8))
-    sns.heatmap(cm, annot=True, cmap = 'viridis')
-    plt.gcf()
+    cm = df_numeric[cols].corr()  # Correlation matrix
 
-st.set_option('deprecation.showPyplotGlobalUse', False)  #Disable 'global use' warning 
-fig = heatmap(df)
-st.pyplot(fig)
+    # Plot heatmap
+    plt.figure(figsize=(14, 8))
+    sns.heatmap(cm, annot=True, cmap='viridis')
+    plt.title('Heatmap of Correlation Matrix')
+
+    # Display the plot in Streamlit
+    st.pyplot(plt)
+
+#st.set_option('deprecation.showPyplotGlobalUse', False)  #Disable 'global use' warning 
+heatmap(df)
+
 st.write('Because most pairs of features have mutual correlations below 1%, multicollinearity is not an issue and this data will likely not be overfitted. Overfitting occurs when it is difficult to define the relationship between the dependent and independent variables, possibly due to abnormally high variance in the testing features (high multicollinearity).')
 st.write('We are ready to move on to the beginning stages of activating the machine learning classification models.')
 
