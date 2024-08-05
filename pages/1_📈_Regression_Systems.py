@@ -69,7 +69,7 @@ def scatterplot():
 
 st.title("Visualizing Regression Trends")
 #st.set_option('deprecation.showPyplotGlobalUse', False)  #Disable 'global use' warning 
-st.pyplot(scatterplot())
+st.altair_chart(scatterplot, use_container_width=True)
 st.caption('Above is a regression-like scatterplot displaying the relationship between some latitude/longitude and magnitude values from the dataset.')
 
 st.title('What do these results mean?')
