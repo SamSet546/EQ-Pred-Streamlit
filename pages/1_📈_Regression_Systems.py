@@ -45,31 +45,29 @@ from matplotlib.colors import LinearSegmentedColormap
 
 df_sub = df.iloc[50000:50500, :]
 
-def scatterplot():
-    sns.set_theme()
-    plt.figure(figsize=(12, 8))
-    plt.title('Latitude vs. Magnitude', size=15)
+sns.set_theme()
+plt.figure(figsize=(12, 8))
+plt.title('Latitude vs. Magnitude', size=15)
 
-    # Create a custom colormap excluding the lightest part
-    cmap = sns.color_palette("Blues", as_cmap=True)
-    custom_cmap = LinearSegmentedColormap.from_list('custom_blues', cmap(np.linspace(0.4, 1, 256)))
+# Create a custom colormap excluding the lightest part
+cmap = sns.color_palette("Blues", as_cmap=True)
+custom_cmap = LinearSegmentedColormap.from_list('custom_blues', cmap(np.linspace(0.4, 1, 256)))
 
-    sns.scatterplot(x=df_sub['latitude'], y=df_sub['magnitude'], 
+sns.scatterplot(x=df_sub['latitude'], y=df_sub['magnitude'], 
                 sizes = (60, 600), palette=custom_cmap, hue=df_sub['longitude'], marker='o', alpha=0.75)
 
-    #Trendline
-    x = df_sub['latitude']
-    y = df_sub['magnitude']
-    w = np.polyfit(x,y,1)
-    z = np.poly1d(w)
-    plt.plot(x,z(x),'r--')
+#Trendline
+x = df_sub['latitude']
+y = df_sub['magnitude']
+w = np.polyfit(x,y,1)
+z = np.poly1d(w)
+plt.plot(x,z(x),'r--')
 
-    plt.savefig('plot.png', dpi=300)
-    plt.show()
+fig, ax = plt.subplots()
 
 st.title("Visualizing Regression Trends")
 #st.set_option('deprecation.showPyplotGlobalUse', False)  #Disable 'global use' warning 
-st.altair_chart(scatterplot, use_container_width=True)
+st.pyplot(fig)
 st.caption('Above is a regression-like scatterplot displaying the relationship between some latitude/longitude and magnitude values from the dataset.')
 
 st.title('What do these results mean?')
