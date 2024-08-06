@@ -616,8 +616,8 @@ def prog_GS(X, y, progress_bar):
         y_train, y_test = y[train_idx], y[test_idx]
     
     for params in ParameterGrid(search_dict):
-            dec_reg.set_params(**params)
-            dec_reg.fit(X_train, y_train)
+            bag_mod.set_params(**params)
+            bag_mod.fit(X_train, y_train)
             current_fit += 1
             if current_fit % (total_fits // 10) == 0:
                 progress = current_fit / total_fits
