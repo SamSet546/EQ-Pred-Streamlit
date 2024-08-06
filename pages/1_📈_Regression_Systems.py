@@ -409,51 +409,45 @@ import time
 import threading
 import time
 
-# Initialize session state variables
-if 'progress' not in st.session_state:
-    st.session_state.progress = 0
-if 'text_status' not in st.session_state:
-    st.session_state.text_status = "Starting GridSearchCV..."
-if 'computation_done' not in st.session_state:
-    st.session_state.computation_done = False
-if 'GS_fit' not in st.session_state:
-    st.session_state.GS_fit = None
-
-# Calibrating the progress bar and text
-progress_bar = st.progress(0)
-text_status = st.empty()
-
-def prog_GS(X, y, progress_bar, text_status):
-    st.cache_data.clear()
-    
-    GS_cv = GridSearchCV(estimator=bag_mod,
-                         param_grid=search_dict,
-                         scoring=['r2', 'neg_root_mean_squared_error'], 
-                         refit='r2', 
-                         cv=5,
-                         verbose=0)
+def prog_GS(X, y, progress_bar):
+    GS_cv = GridSearchCV(estimator=dec_reg,
+                    param_grid=search_dict,
+                    scoring=['r2', 'neg_root_mean_squared_error'], 
+                    refit='r2', #Will allow us to use sklearn scoring metrics 
+                    cv=5,
+                    verbose=0) #No verbose makes the progress faster
     
     # Number of total fits
-    total_fits = len(search_dict['n_jobs']) * len(search_dict['random_state'])
-    current_fit = 0
+    total_fits = len(search_dict['ccp_alpha']) * len(search_dict['random_state']) * len(search_dict['max_depth']) * len(search_dict['min_samples_split']) * len(search_dict['min_samples_leaf'])
+    
+    # Define the cross-validation strategy
     cv = KFold(n_splits=5)
+    current_fit = 0
     
     for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-        
-        for params in ParameterGrid(search_dict):
-            bag_mod.set_params(**params)
-            bag_mod.fit(X_train, y_train)
+    
+    for params in ParameterGrid(search_dict):
+            dec_reg.set_params(**params)
+            dec_reg.fit(X_train, y_train)
             current_fit += 1
             if current_fit % (total_fits // 10) == 0:
                 progress = current_fit / total_fits
                 progress_bar.progress(progress)
+                #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
                 text_status.text(f"Processing fits {current_fit}/{total_fits}")
-            time.sleep(0.01)  # Simulate delay
+            #time.sleep(0.001)  # Simulate delay
     
     GS_cv.fit(X, y)
     return GS_cv
+
+with st.spinner("Running…"):
+        GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
+    
+# Update session state with the result
+st.session_state.GS_fit = GS_fit
+st.session_state.computation_done = True
 
 st.divider()
 
@@ -462,17 +456,16 @@ st.subheader('GridSearch CV Fitting Process')
 st.write('GridSearch CV will run hundreds of iterations testing the effect of each parameter on the training data and the model.')
 st.write('The total number of fits should be visible in the progress bar above.')
 
+# Initialize session state variables
+if 'computation_done' not in st.session_state:
+    st.session_state.computation_done = False
+
 # Start the background computation if it hasn't been started
 if not st.session_state.computation_done:
-    threading.Thread(target=run_grid_search, args=(X_train, y_train)).start()
+    threading.Thread(target=run_grid_search).start()
 
-# Display progress and status
-progress_bar.progress(st.session_state.progress)
-text_status.text(st.session_state.text_status)
-
-# Display results once the computation is done
+# Run GS CV on the streamlit, displaying results and progress
 if st.session_state.computation_done:
-    GS_fit = st.session_state.GS_fit
     st.text(GS_fit)
 
     st.write('Below are ALL the best parameters for the Decision Tree model when GridSearch CV is fitted to the training data.')
@@ -595,74 +588,55 @@ search_dict = {
 '''
 st.code(code)
 
-#Calibrating the progress bar and text
-st.session_state.progress_bar = st.progress(0)
-st.session_state.text_status = "Starting GridSearchCV..."
+# Calibrating the progress bar and text
+progress_bar = st.progress(0)
 text_status = st.empty()
 
-import sys
-
-def prog_GS(X, y, progress_bar):
+def prog_GS(X, y, progress_bar, text_status):
     st.cache_data.clear()
     
     GS_cv = GridSearchCV(estimator=bag_mod,
-                    param_grid=search_dict,
-                    scoring=['r2', 'neg_root_mean_squared_error'], 
-                    refit='r2', #Will allow us to use sklearn scoring metrics 
-                    cv=5,
-                    verbose=0) #No verbose makes the progress faster
+                         param_grid=search_dict,
+                         scoring=['r2', 'neg_root_mean_squared_error'], 
+                         refit='r2', 
+                         cv=5,
+                         verbose=0)
     
     # Number of total fits
-    total_fits =  len(search_dict['n_jobs']) * len(search_dict['random_state'])
-    
-    # Define the cross-validation strategy
-    cv = KFold(n_splits=5)
+    total_fits = len(search_dict['n_jobs']) * len(search_dict['random_state'])
     current_fit = 0
+    cv = KFold(n_splits=5)
     
     for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-    
-    for params in ParameterGrid(search_dict):
+        
+        for params in ParameterGrid(search_dict):
             bag_mod.set_params(**params)
             bag_mod.fit(X_train, y_train)
             current_fit += 1
             if current_fit % (total_fits // 10) == 0:
                 progress = current_fit / total_fits
                 progress_bar.progress(progress)
-                #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
                 text_status.text(f"Processing fits {current_fit}/{total_fits}")
-            #time.sleep(0.001)  # Simulate delay
+            time.sleep(0.01)  # Simulate delay
     
     GS_cv.fit(X, y)
     return GS_cv
 
 st.write('The fitting process will now begin. Pay attention to the progress bar to track how many fits have been completed.')
 
-try:
-
-# Run GS CV on the streamlit, displaying results and progress
-    with st.spinner("Running…"):
-            GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
-
-except BrokenPipeError:
-    sys.stderr.write('Broken pipe error occurred.\n')
-    sys.stderr.flush()
-    
-# Update session state with the result
-st.session_state.GS_fit = GS_fit
-st.session_state.computation_done = True
-
-# Initialize session state variables
-if 'computation_done' not in st.session_state:
-    st.session_state.computation_done = False
-
 # Start the background computation if it hasn't been started
 if not st.session_state.computation_done:
-    threading.Thread(target=run_grid_search).start()
+    threading.Thread(target=run_grid_search, args=(X_train, y_train)).start()
 
-# Run GS CV on the streamlit, displaying results and progress
+# Display progress and status
+progress_bar.progress(st.session_state.progress)
+text_status.text(st.session_state.text_status)
+
+# Display results once the computation is done
 if st.session_state.computation_done:
+    GS_fit = st.session_state.GS_fit
     st.text(GS_fit)
 
     st.write('Below are ALL the best parameters for the Decision Tree model when GridSearch CV is fitted to the training data.')
@@ -763,4 +737,3 @@ st.subheader('Conclusion')
 st.write('Predicting earthquake magnitude is a difficult task, especially considering such factors as location, depth, and the identification linked to the disaster.')
 st.write('Yet, in the end, we were able to both construct and debug a machine learning model that could predict earthquake to 50-60% accuracy!')
 st.caption("While traditional regression methods may not be the MOST accurate, refer to the 'Classification' page for a better prediction of magnitude.")
-
