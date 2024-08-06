@@ -397,8 +397,8 @@ search_dict = {
 }
 
 #Calibrating a progress bar
-prog_bar = st.progress(0)
-text_status = st.empty()
+#prog_bar = st.progress(0)
+#text_status = st.empty()
 
 from sklearn.model_selection import GridSearchCV, KFold, ParameterGrid
 import time
@@ -410,7 +410,8 @@ def prog_GS(X, y, progress_bar):
                     param_grid=search_dict,
                     scoring=['r2', 'neg_root_mean_squared_error'], 
                     refit='r2',
-                    cv=5) #Will allow us to use sklearn scoring metrics 
+                    cv=5,
+                    verbose=0) #Will allow us to use sklearn scoring metrics 
     
     # Number of total fits
     total_fits = len(search_dict['ccp_alpha']) * len(search_dict['random_state']) * len(search_dict['max_depth']) * len(search_dict['min_samples_split']) * len(search_dict['min_samples_leaf'])
@@ -427,9 +428,10 @@ def prog_GS(X, y, progress_bar):
             dec_reg.set_params(**params)
             dec_reg.fit(X_train, y_train)
             current_fit += 1
-            progress = current_fit / total_fits
-            progress_bar.progress(progress)
-            st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
+            if current_fit % (total_fits // 10) == 0:
+                progress = current_fit / total_fits
+                progress_bar.progress(progress)
+                st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
             #time.sleep(0.1)  # Simulate delay
     
     GS_cv.fit(X, y)
