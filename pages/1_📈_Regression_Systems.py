@@ -575,7 +575,8 @@ bag_mod = BaggingRegressor(base_mod)
 search_dict = {
     'n_estimators': [20, 50, 100], 
     'n_jobs': [10, 15],
-    'verbose': [15, 20],
+    'max_features': [1, 2, 3],
+    'random_state': [42, None]
 }
 
 st.write('Below is the list of hyperparameters that will be calibrated and optimized.')
@@ -583,7 +584,8 @@ code = '''
 search_dict = {
     'n_estimators': [20, 50, 100], 
     'n_jobs': [10, 15],
-    'verbose': [15, 20]
+    'max_features': [1, 2, 3],
+    'random_state': [42, None]
 }
 '''
 st.code(code)
@@ -592,16 +594,6 @@ st.code(code)
 st.session_state.progress_bar = st.progress(0)
 st.session_state.text_status = "Starting GridSearchCV..."
 text_status = st.empty()
-
-# Initialize session state variables
-if 'progress' not in st.session_state:
-    st.session_state.progress = 0
-if 'text_status' not in st.session_state:
-    st.session_state.text_status = "Starting GridSearchCV..."
-if 'computation_done' not in st.session_state:
-    st.session_state.computation_done = False
-if 'GS_fit' not in st.session_state:
-    st.session_state.GS_fit = None
 
 def prog_GS(X, y, progress_bar):
     st.cache_data.clear()
