@@ -600,7 +600,7 @@ def prog_GS(X, y):
                          cv=5,
                          verbose=0)
     
-    total_fits = len(search_dict['random_state'])
+    total_fits = len(search_dict['random_state']) * len(search_dict['n_jobs'])
     current_fit = 0
     cv = KFold(n_splits=5)
     
