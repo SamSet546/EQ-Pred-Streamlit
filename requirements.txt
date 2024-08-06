@@ -9,4 +9,4 @@ matplotlib
 shap
 xgboost
 statsmodels
-altair
+threading
