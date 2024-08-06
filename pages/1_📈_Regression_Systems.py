@@ -575,7 +575,6 @@ bag_mod = BaggingRegressor(base_mod)
 search_dict = {
     'n_estimators': [20, 50, 100], 
     'n_jobs': [10, 15],
-    'max_features': [1, 2, 3],
     'random_state': [42, None]
 }
 
@@ -584,7 +583,6 @@ code = '''
 search_dict = {
     'n_estimators': [20, 50, 100], 
     'n_jobs': [10, 15],
-    'max_features': [1, 2, 3],
     'random_state': [42, None]
 }
 '''
@@ -606,7 +604,7 @@ def prog_GS(X, y, progress_bar):
                     verbose=0) #No verbose makes the progress faster
     
     # Number of total fits
-    total_fits = len(search_dict['n_estimators']) * len(search_dict['n_jobs']) * len(search_dict['max_features']) * len(search_dict['random_state'])
+    total_fits = len(search_dict['n_estimators']) * len(search_dict['n_jobs']) * len(search_dict['random_state'])
     
     # Define the cross-validation strategy
     cv = KFold(n_splits=5)
