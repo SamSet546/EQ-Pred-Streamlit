@@ -396,8 +396,9 @@ search_dict = {
     'min_samples_leaf': [1, 5, 10, 20]
 }
 
-#Calibrating a progress bar
-prog_bar = st.progress(0)
+# Calibrating the progress bar and text
+st.session_state.progress_bar = st.progress(0)
+st.session_state.text_status = "Starting GridSearchCV..."
 text_status = st.empty()
 
 from sklearn.model_selection import GridSearchCV, KFold, ParameterGrid
@@ -439,10 +440,6 @@ def prog_GS(X, y, progress_bar):
     
     GS_cv.fit(X, y)
     return GS_cv
-
-# Initialize progress bar and text status in session state
-st.session_state.progress_bar = st.progress(0)
-st.session_state.text_status = "Starting GridSearchCV..."
 
 with st.spinner("Running…"):
         GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
@@ -590,8 +587,9 @@ search_dict = {
 '''
 st.code(code)
 
-#Calibrating a progress bar
-#prog_bar = st.progress(0)
+#Calibrating the progress bar and text
+st.session_state.progress_bar = st.progress(0)
+st.session_state.text_status = "Starting GridSearchCV..."
 text_status = st.empty()
 
 def prog_GS(X, y, progress_bar):
@@ -627,13 +625,9 @@ def prog_GS(X, y, progress_bar):
     GS_cv.fit(X, y)
     return GS_cv
 
-# Initialize progress bar and text status in session state
-st.session_state.progress_bar = st.progress(0)
-st.session_state.text_status = "Starting GridSearchCV..."
-
 st.write('The fitting process will now begin. Pay attention to the progress bar to track how many fits have been completed.')
-# Run GS CV on the streamlit, displaying results and progress
 
+# Run GS CV on the streamlit, displaying results and progress
 with st.spinner("Running…"):
         GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
     
