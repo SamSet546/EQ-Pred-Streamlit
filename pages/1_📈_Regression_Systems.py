@@ -397,7 +397,7 @@ search_dict = {
 }
 
 #Calibrating a progress bar
-#prog_bar = st.progress(0)
+prog_bar = st.progress(0)
 text_status = st.empty()
 
 from sklearn.model_selection import GridSearchCV, KFold, ParameterGrid
