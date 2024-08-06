@@ -588,7 +588,10 @@ search_dict = {
 '''
 st.code(code)
 
-import sys
+# Calibrating the progress bar and text
+st.session_state.progress_bar = st.progress(0)
+st.session_state.text_status = "Starting GridSearchCV..."
+text_status = st.empty()
 
 import threading
 import time
