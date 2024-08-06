@@ -410,8 +410,7 @@ def prog_GS(X, y, progress_bar):
                     param_grid=search_dict,
                     scoring=['r2', 'neg_root_mean_squared_error'], 
                     refit='r2',
-                    cv=5,
-                    verbose=4) #Will allow us to use sklearn scoring metrics 
+                    cv=5) #Will allow us to use sklearn scoring metrics 
     
     # Number of total fits
     total_fits = len(search_dict['ccp_alpha']) * len(search_dict['random_state']) * len(search_dict['max_depth']) * len(search_dict['min_samples_split']) * len(search_dict['min_samples_leaf'])
