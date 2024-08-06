@@ -623,8 +623,7 @@ def prog_GS(X, y):
 st.write('The fitting process will now begin.')
 
 try:
-    with st.spinner("Running…"):
-        X_train, y_train = load_your_data()  # Replace with your actual data loading logic
+    with st.spinner("Running…"):  
         GS_fit = prog_GS(X_train, y_train)
         st.session_state.GS_fit = GS_fit
         st.session_state.computation_done = True
