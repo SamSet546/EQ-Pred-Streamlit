@@ -573,16 +573,16 @@ bag_mod = BaggingRegressor(base_mod)
 #Hyperparameters list 
 
 search_dict = {
-    'max_samples': [0.5, 0.7],
-    'n_estimators': [50, 100],
+    'max_samples': [0.5, 0.7, 1.0],
+    'n_estimators': [20, 50, 100],
     'bootstrap': [True, False]
 }
 
 st.write('Below is the list of hyperparameters that will be calibrated and optimized.')
 code = '''
 search_dict = {
-    'max_samples': [0.5, 0.7],
-    'n_estimators': [50, 100],
+    'max_samples': [0.5, 0.7, 1.0],
+    'n_estimators': [20, 50, 100],
     'bootstrap': [True, False]
 }
 '''
