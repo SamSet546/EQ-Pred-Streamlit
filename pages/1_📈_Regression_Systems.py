@@ -640,7 +640,7 @@ try:
 
 except BrokenPipeError:
     sys.stderr.write('Broken pipe error occurred.\n')
-    sys.stderr.flush(
+    sys.stderr.flush()
     
 # Update session state with the result
 st.session_state.GS_fit = GS_fit
