@@ -573,66 +573,78 @@ bag_mod = BaggingRegressor(base_mod)
 #Hyperparameters list 
 
 search_dict = {
-    'max_samples': [0.5, 0.7, 1.0],
-    'n_estimators': [20, 50, 100],
+    'max_samples': [0.5, 0.7],
+    'n_estimators': [50, 100],
     'bootstrap': [True, False]
 }
 
 st.write('Below is the list of hyperparameters that will be calibrated and optimized.')
 code = '''
 search_dict = {
-    #'n_estimators': [20, 50, 100], 
-    'n_jobs': [10, 15],
-    'random_state': [42, None]
+    'max_samples': [0.5, 0.7],
+    'n_estimators': [50, 100],
+    'bootstrap': [True, False]
 }
 '''
 st.code(code)
 
 import sys
 
-def prog_GS(X, y):
-    st.cache_data.clear()
-    
+import threading
+import time
+
+def prog_GS(X, y, progress_bar):
     GS_cv = GridSearchCV(estimator=bag_mod,
-                         param_grid=search_dict,
-                         scoring=['r2', 'neg_root_mean_squared_error'], 
-                         refit='r2', 
-                         cv=5,
-                         verbose=0)
+                    param_grid=search_dict,
+                    scoring=['r2', 'neg_root_mean_squared_error'], 
+                    refit='r2', #Will allow us to use sklearn scoring metrics 
+                    cv=5,
+                    verbose=0) #No verbose makes the progress faster
     
-    total_fits = len(search_dict['max_samples']) * len(search_dict['n_estimators']) * len(search_dict['bootstrap'])
-    current_fit = 0
+    # Number of total fits
+    total_fits = len(search_dict['max_samples']) * len(search_dict['n_estimators']) * len(search_dict['bootstrap']) 
+    
+    # Define the cross-validation strategy
     cv = KFold(n_splits=5)
+    current_fit = 0
     
     for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-        
-        for params in ParameterGrid(search_dict):
-            bag_mod.set_params(**params)
-            bag_mod.fit(X_train, y_train)
+    
+    for params in ParameterGrid(search_dict):
+            dec_reg.set_params(**params)
+            dec_reg.fit(X_train, y_train)
             current_fit += 1
             if current_fit % (total_fits // 10) == 0:
-                st.write(f"Processing fits {current_fit}/{total_fits}")
-            # Simulate delay
-            time.sleep(0.01)
+                progress = current_fit / total_fits
+                progress_bar.progress(progress)
+                #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
+                text_status.text(f"Processing fits {current_fit}/{total_fits}")
+            #time.sleep(0.001)  # Simulate delay
     
     GS_cv.fit(X, y)
     return GS_cv
 
+with st.spinner("Running…"):
+        GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
+    
+# Update session state with the result
+st.session_state.GS_fit = GS_fit
+st.session_state.computation_done = True
+
 st.write('The fitting process will now begin.')
 
-try:
-    with st.spinner("Running…"):  
-        GS_fit = prog_GS(X_train, y_train)
-        st.session_state.GS_fit = GS_fit
-        st.session_state.computation_done = True
-except BrokenPipeError:
-    sys.stderr.write('Broken pipe error occurred.\n')
-    sys.stderr.flush()
+# Initialize session state variables
+if 'computation_done' not in st.session_state:
+    st.session_state.computation_done = False
 
+# Start the background computation if it hasn't been started
+if not st.session_state.computation_done:
+    threading.Thread(target=run_grid_search).start()
+
+# Run GS CV on the streamlit, displaying results and progress
 if st.session_state.computation_done:
-    GS_fit = st.session_state.GS_fit
     st.text(GS_fit)
 
     st.write('Below are ALL the best parameters for the Decision Tree model when GridSearch CV is fitted to the training data.')
@@ -657,7 +669,7 @@ dec_reg = DecisionTreeRegressor(ccp_alpha=0.0001, max_depth=10, min_samples_leaf
 
 base_mod = dec_reg
 
-bag_mod_new = BaggingRegressor(base_mod, n_estimators=100, n_jobs=10, verbose=15, max_features=2)  #max_features seems to improve model accuracy
+bag_mod_new = BaggingRegressor(base_mod, n_estimators=100, max_features=2, boostrap=False, max_samples=0.5)  #max_features seems to improve model accuracy
 
 bag_mod_new.fit(X_train, y_train)
 
