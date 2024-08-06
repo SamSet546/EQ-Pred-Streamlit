@@ -379,7 +379,7 @@ st.write('GridSearch CV will accept the Decision Tree Regressor, but requires us
 st.write("The list used is attached in code below (under the alias: 'search_dict').")
 
 code = '''search_dict = {
-    'ccp_alpha': [0.0001, 0.001, 0.01, 0.1], 
+    'ccp_alpha': [0.0001, 0.001, 0.01], 
     'random_state': [42, 50, 2021, None], 
     'max_depth': [1, 2, 5, 10],
     'min_samples_split': [2, 4, 6, 8],
@@ -389,7 +389,7 @@ code = '''search_dict = {
 st.code(code)
 
 search_dict = {
-    'ccp_alpha': [0.0001, 0.001, 0.01, 0.1], 
+    'ccp_alpha': [0.0001, 0.001, 0.01], 
     'random_state': [42, 50, 2021, None], 
     'max_depth': [1, 2, 5, 10],
     'min_samples_split': [2, 4, 6, 8],
@@ -433,7 +433,7 @@ def prog_GS(X, y, progress_bar):
             dec_reg.fit(X_train, y_train)
             current_fit += 1
             if current_fit % (total_fits // 10) == 0:
-                progress = current_fit / total_fits
+                progress = False
                 progress_bar.progress(progress)
                 #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
                 text_status.text(f"Processing fits {current_fit}/{total_fits}")
@@ -627,7 +627,7 @@ def prog_GS(X, y, progress_bar):
             bag_mod.fit(X_train, y_train)
             current_fit += 1
             if current_fit % (total_fits // 10) == 0:
-                progress = current_fit / total_fits
+                progress = False
                 progress_bar.progress(progress)
                 #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
                 text_status.text(f"Processing fits {current_fit}/{total_fits}")
