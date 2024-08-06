@@ -606,7 +606,7 @@ def prog_GS(X, y, progress_bar):
                     verbose=0) #No verbose makes the progress faster
     
     # Number of total fits
-    total_fits = len(search_dict['n_estimators']) * len(search_dict['n_jobs']) * len(search_dict['random_state'])
+    total_fits =  len(search_dict['n_jobs']) * len(search_dict['random_state'])
     
     # Define the cross-validation strategy
     cv = KFold(n_splits=5)
