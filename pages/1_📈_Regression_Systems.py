@@ -405,7 +405,7 @@ import time
 
 #Building a GS CV function that shows the code in progress
 
-def prog_GS(X, y):
+def prog_GS(X, y, progress_bar):
     GS_cv = GridSearchCV(estimator=dec_reg,
                     param_grid=search_dict,
                     scoring=['r2', 'neg_root_mean_squared_error'], 
@@ -429,7 +429,7 @@ def prog_GS(X, y):
             dec_reg.fit(X_train, y_train)
             current_fit += 1
             progress = current_fit / total_fits
-            prog_bar.progress(progress)
+            progress_bar.progress(progress)
             st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
             #time.sleep(0.1)  # Simulate delay
     
