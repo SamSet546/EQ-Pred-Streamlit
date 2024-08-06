@@ -581,7 +581,7 @@ search_dict = {
 st.write('Below is the list of hyperparameters that will be calibrated and optimized.')
 code = '''
 search_dict = {
-    'n_estimators': [20, 50, 100], 
+    #'n_estimators': [20, 50, 100], 
     'n_jobs': [10, 15],
     'random_state': [42, None]
 }
