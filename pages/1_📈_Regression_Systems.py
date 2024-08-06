@@ -593,6 +593,8 @@ st.session_state.progress_bar = st.progress(0)
 st.session_state.text_status = "Starting GridSearchCV..."
 text_status = st.empty()
 
+import sys
+
 def prog_GS(X, y, progress_bar):
     st.cache_data.clear()
     
@@ -630,9 +632,15 @@ def prog_GS(X, y, progress_bar):
 
 st.write('The fitting process will now begin. Pay attention to the progress bar to track how many fits have been completed.')
 
+try:
+
 # Run GS CV on the streamlit, displaying results and progress
 with st.spinner("Running…"):
         GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
+
+except BrokenPipeError:
+    sys.stderr.write('Broken pipe error occurred.\n')
+    sys.stderr.flush(
     
 # Update session state with the result
 st.session_state.GS_fit = GS_fit
