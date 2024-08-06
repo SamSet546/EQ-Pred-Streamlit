@@ -635,8 +635,8 @@ st.write('The fitting process will now begin. Pay attention to the progress bar 
 try:
 
 # Run GS CV on the streamlit, displaying results and progress
-with st.spinner("Running…"):
-        GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
+    with st.spinner("Running…"):
+            GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
 
 except BrokenPipeError:
     sys.stderr.write('Broken pipe error occurred.\n')
