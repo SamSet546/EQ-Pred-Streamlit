@@ -405,13 +405,13 @@ import time
 
 #Building a GS CV function that shows the code in progress
 
-def prog_GS(X, y, dec_reg, search_dict):
+def prog_GS(X, y):
     GS_cv = GridSearchCV(estimator=dec_reg,
-                        param_grid=search_dict,
-                        scoring=['r2', 'neg_root_mean_squared_error'], 
-                        refit='r2',
-                        cv=5,
-                        verbose=4) # Will allow us to use sklearn scoring metrics
+                    param_grid=search_dict,
+                    scoring=['r2', 'neg_root_mean_squared_error'], 
+                    refit='r2',
+                    cv=5,
+                    verbose=4) #Will allow us to use sklearn scoring metrics 
     
     # Number of total fits
     total_fits = len(search_dict['ccp_alpha']) * len(search_dict['random_state']) * len(search_dict['max_depth']) * len(search_dict['min_samples_split']) * len(search_dict['min_samples_leaf'])
@@ -424,18 +424,29 @@ def prog_GS(X, y, dec_reg, search_dict):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
     
-        for params in ParameterGrid(search_dict):
+    for params in ParameterGrid(search_dict):
             dec_reg.set_params(**params)
             dec_reg.fit(X_train, y_train)
             current_fit += 1
             progress = current_fit / total_fits
-            st.progress(progress)  # Update progress bar in Streamlit
-            st.text(f"Processing fits {current_fit}/{total_fits}")
-
+            prog_bar.progress(progress)
+            text_status.text(f"Processing fits {current_fit}/{total_fits}")
+            #time.sleep(0.1)  # Simulate delay
+    
     GS_cv.fit(X, y)
     return GS_cv
 
-# Streamlit code to call prog_GS
+# Initialize progress bar and text status in session state
+st.session_state.progress_bar = st.progress(0)
+st.session_state.text_status = "Starting GridSearchCV..."
+    
+# Run the GridSearchCV with progress tracking
+GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
+    
+# Update session state with the result
+st.session_state.GS_fit = GS_fit
+st.session_state.computation_done = True
+
 st.divider()
 
 st.subheader('GridSearch CV Fitting Process')
@@ -443,21 +454,25 @@ st.subheader('GridSearch CV Fitting Process')
 st.write('GridSearch CV will run hundreds of iterations testing the effect of each parameter on the training data and the model.')
 st.write('The total number of fits should be visible in the progress bar above.')
 
-# Create the progress bar and text status
-prog_bar = st.progress(0)
-text_status = st.text("Processing...")
+# Initialize session state variables
+if 'computation_done' not in st.session_state:
+    st.session_state.computation_done = False
 
-# Assuming dec_reg and search_dict are defined elsewhere
-with st.spinner("Running…"):
-    GS_fit = prog_GS(X_train, y_train, dec_reg, search_dict)
+# Start the background computation if it hasn't been started
+if not st.session_state.computation_done:
+    threading.Thread(target=run_grid_search).start()
 
-st.text(GS_fit)
+# Run GS CV on the streamlit, displaying results and progress
+if st.session_state.computation_done:
+    with st.spinner("Running…"):
+        GS_fit = prog_GS(X_train, y_train)
+    st.text(GS_fit)
 
-st.write('Below are ALL the best parameters for the Decision Tree model when GridSearch CV is fitted to the training data.')
-st.text(GS_fit.best_estimator_)
+    st.write('Below are ALL the best parameters for the Decision Tree model when GridSearch CV is fitted to the training data.')
+    st.text(GS_fit.best_estimator_)
 
-st.write('Below are the best hyperparameters for the Decision Tree model.')
-st.text(GS_fit.best_params_)
+    st.write('Below are the best hyperparameters for the Decision Tree model.')
+    st.text(GS_fit.best_params_)
 
 st.write('Given these parameters, we will now return the accuracy of the most optimal sklearn.tree model.')
 dec_reg = DecisionTreeRegressor(ccp_alpha=0.0001, max_depth=10, min_samples_leaf=20,
