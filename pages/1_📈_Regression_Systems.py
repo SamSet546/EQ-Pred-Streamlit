@@ -405,6 +405,8 @@ import time
 
 #Building a GS CV function that shows the code in progress
 
+import threading
+
 def prog_GS(X, y, progress_bar):
     GS_cv = GridSearchCV(estimator=dec_reg,
                     param_grid=search_dict,
