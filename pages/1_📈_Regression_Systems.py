@@ -573,9 +573,9 @@ bag_mod = BaggingRegressor(base_mod)
 #Hyperparameters list 
 
 search_dict = {
-    #'n_estimators': [20, 50, 100], 
-    'n_jobs': [10, 15],
-    'random_state': [42, None]
+    'max_samples': [0.5, 0.7, 1.0],
+    'n_estimators': [20, 50, 100],
+    'bootstrap': [True, False]
 }
 
 st.write('Below is the list of hyperparameters that will be calibrated and optimized.')
@@ -600,7 +600,7 @@ def prog_GS(X, y):
                          cv=5,
                          verbose=0)
     
-    total_fits = len(search_dict['random_state']) * len(search_dict['n_jobs'])
+    total_fits = len(search_dict['max_samples']) * len(search_dict['n_estimators']) * len(search_dict['bootstrap'])
     current_fit = 0
     cv = KFold(n_splits=5)
     
