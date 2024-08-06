@@ -672,7 +672,7 @@ dec_reg = DecisionTreeRegressor(ccp_alpha=0.0001, max_depth=10, min_samples_leaf
 
 base_mod = dec_reg
 
-bag_mod_new = BaggingRegressor(base_mod, n_estimators=100, max_features=2, boostrap=False, max_samples=0.5)  #max_features seems to improve model accuracy
+bag_mod_new = BaggingRegressor(base_mod, n_estimators=100, max_features=2, bootstrap=False, max_samples=0.5)  #max_features seems to improve model accuracy
 
 bag_mod_new.fit(X_train, y_train)
 
