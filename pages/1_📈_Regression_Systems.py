@@ -407,6 +407,7 @@ import time
 #Building a GS CV function that shows the code in progress
 
 import threading
+import time
 
 def prog_GS(X, y, progress_bar):
     GS_cv = GridSearchCV(estimator=dec_reg,
@@ -436,7 +437,7 @@ def prog_GS(X, y, progress_bar):
                 progress_bar.progress(progress)
                 #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
                 text_status.text(f"Processing fits {current_fit}/{total_fits}")
-            #time.sleep(0.1)  # Simulate delay
+            time.sleep(0.1)  # Simulate delay
     
     GS_cv.fit(X, y)
     return GS_cv
@@ -592,6 +593,16 @@ st.session_state.progress_bar = st.progress(0)
 st.session_state.text_status = "Starting GridSearchCV..."
 text_status = st.empty()
 
+# Initialize session state variables
+if 'progress' not in st.session_state:
+    st.session_state.progress = 0
+if 'text_status' not in st.session_state:
+    st.session_state.text_status = "Starting GridSearchCV..."
+if 'computation_done' not in st.session_state:
+    st.session_state.computation_done = False
+if 'GS_fit' not in st.session_state:
+    st.session_state.GS_fit = None
+
 def prog_GS(X, y, progress_bar):
     GS_cv = GridSearchCV(estimator=bag_mod,
                     param_grid=search_dict,
@@ -620,7 +631,7 @@ def prog_GS(X, y, progress_bar):
                 progress_bar.progress(progress)
                 #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
                 text_status.text(f"Processing fits {current_fit}/{total_fits}")
-            #time.sleep(0.1)  # Simulate delay
+            time.sleep(0.1)  # Simulate delay
     
     GS_cv.fit(X, y)
     return GS_cv
