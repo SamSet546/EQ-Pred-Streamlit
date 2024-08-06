@@ -434,7 +434,7 @@ def prog_GS(X, y, progress_bar):
                 progress = current_fit / total_fits
                 progress_bar.progress(progress)
                 #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
-                text_status.text(f"Processing fits {current_fit}/{total_fits}"
+                text_status.text(f"Processing fits {current_fit}/{total_fits}")
             #time.sleep(0.1)  # Simulate delay
     
     GS_cv.fit(X, y)
