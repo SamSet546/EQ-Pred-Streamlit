@@ -433,7 +433,8 @@ def prog_GS(X, y, progress_bar):
             if current_fit % (total_fits // 10) == 0:
                 progress = current_fit / total_fits
                 progress_bar.progress(progress)
-                st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
+                st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}
+                text_status.text(f"Processing fits {current_fit}/{total_fits}""
             #time.sleep(0.1)  # Simulate delay
     
     GS_cv.fit(X, y)
@@ -442,9 +443,9 @@ def prog_GS(X, y, progress_bar):
 # Initialize progress bar and text status in session state
 st.session_state.progress_bar = st.progress(0)
 st.session_state.text_status = "Starting GridSearchCV..."
-    
-# Run the GridSearchCV with progress tracking
-GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
+
+with st.spinner("Running…"):
+        GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
     
 # Update session state with the result
 st.session_state.GS_fit = GS_fit
@@ -467,8 +468,6 @@ if not st.session_state.computation_done:
 
 # Run GS CV on the streamlit, displaying results and progress
 if st.session_state.computation_done:
-    with st.spinner("Running…"):
-        GS_fit = prog_GS(X_train, y_train)
     st.text(GS_fit)
 
     st.write('Below are ALL the best parameters for the Decision Tree model when GridSearch CV is fitted to the training data.')
