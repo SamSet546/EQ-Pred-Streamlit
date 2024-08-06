@@ -573,7 +573,7 @@ bag_mod = BaggingRegressor(base_mod)
 #Hyperparameters list 
 
 search_dict = {
-    'n_estimators': [20, 50, 100], 
+    #'n_estimators': [20, 50, 100], 
     'n_jobs': [10, 15],
     'random_state': [42, None]
 }
