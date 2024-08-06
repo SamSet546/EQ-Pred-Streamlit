@@ -574,7 +574,7 @@ bag_mod = BaggingRegressor(base_mod)
 
 search_dict = {
     #'n_estimators': [20, 50, 100], 
-    'n_jobs': [10, 15],
+    #'n_jobs': [10, 15],
     'random_state': [42, None]
 }
 
@@ -588,11 +588,9 @@ search_dict = {
 '''
 st.code(code)
 
-# Calibrating the progress bar and text
-progress_bar = st.progress(0)
-text_status = st.empty()
+import sys
 
-def prog_GS(X, y, progress_bar, text_status):
+def prog_GS(X, y):
     st.cache_data.clear()
     
     GS_cv = GridSearchCV(estimator=bag_mod,
@@ -602,8 +600,7 @@ def prog_GS(X, y, progress_bar, text_status):
                          cv=5,
                          verbose=0)
     
-    # Number of total fits
-    total_fits = len(search_dict['n_jobs']) * len(search_dict['random_state'])
+    total_fits = len(search_dict['random_state'])
     current_fit = 0
     cv = KFold(n_splits=5)
     
@@ -616,25 +613,25 @@ def prog_GS(X, y, progress_bar, text_status):
             bag_mod.fit(X_train, y_train)
             current_fit += 1
             if current_fit % (total_fits // 10) == 0:
-                progress = current_fit / total_fits
-                progress_bar.progress(progress)
-                text_status.text(f"Processing fits {current_fit}/{total_fits}")
-            time.sleep(0.01)  # Simulate delay
+                st.write(f"Processing fits {current_fit}/{total_fits}")
+            # Simulate delay
+            time.sleep(0.01)
     
     GS_cv.fit(X, y)
     return GS_cv
 
-st.write('The fitting process will now begin. Pay attention to the progress bar to track how many fits have been completed.')
+st.write('The fitting process will now begin.')
 
-# Start the background computation if it hasn't been started
-if not st.session_state.computation_done:
-    threading.Thread(target=run_grid_search, args=(X_train, y_train)).start()
+try:
+    with st.spinner("Running…"):
+        X_train, y_train = load_your_data()  # Replace with your actual data loading logic
+        GS_fit = prog_GS(X_train, y_train)
+        st.session_state.GS_fit = GS_fit
+        st.session_state.computation_done = True
+except BrokenPipeError:
+    sys.stderr.write('Broken pipe error occurred.\n')
+    sys.stderr.flush()
 
-# Display progress and status
-progress_bar.progress(st.session_state.progress)
-text_status.text(st.session_state.text_status)
-
-# Display results once the computation is done
 if st.session_state.computation_done:
     GS_fit = st.session_state.GS_fit
     st.text(GS_fit)
