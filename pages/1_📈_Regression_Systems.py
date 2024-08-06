@@ -411,9 +411,9 @@ def prog_GS(X, y, progress_bar):
     GS_cv = GridSearchCV(estimator=dec_reg,
                     param_grid=search_dict,
                     scoring=['r2', 'neg_root_mean_squared_error'], 
-                    refit='r2',
+                    refit='r2', #Will allow us to use sklearn scoring metrics 
                     cv=5,
-                    verbose=0) #Will allow us to use sklearn scoring metrics 
+                    verbose=0) #No verbose makes the progress faster
     
     # Number of total fits
     total_fits = len(search_dict['ccp_alpha']) * len(search_dict['random_state']) * len(search_dict['max_depth']) * len(search_dict['min_samples_split']) * len(search_dict['min_samples_leaf'])
@@ -591,19 +591,19 @@ search_dict = {
 st.code(code)
 
 #Calibrating a progress bar
-prog_bar = st.progress(0)
+#prog_bar = st.progress(0)
 text_status = st.empty()
 
-def prog_GS(X, y):
+def prog_GS(X, y, progress_bar):
     GS_cv = GridSearchCV(estimator=bag_mod,
                     param_grid=search_dict,
                     scoring=['r2', 'neg_root_mean_squared_error'], 
-                    refit='r2',
+                    refit='r2', #Will allow us to use sklearn scoring metrics 
                     cv=5,
-                    verbose=4) #Will allow us to use sklearn scoring metrics 
+                    verbose=0) #No verbose makes the progress faster
     
     # Number of total fits
-    total_fits = len(search_dict['n_estimators']) * len(search_dict['n_jobs']) * len(search_dict['verbose']) 
+    total_fits = len(search_dict['n_estimators']) * len(search_dict['n_jobs']) * len(search_dict['verbose'])
     
     # Define the cross-validation strategy
     cv = KFold(n_splits=5)
@@ -617,25 +617,47 @@ def prog_GS(X, y):
             bag_mod.set_params(**params)
             bag_mod.fit(X_train, y_train)
             current_fit += 1
-            progress = current_fit / total_fits
-            prog_bar.progress(progress)
-            text_status.text(f"Processing fits {current_fit}/{total_fits}")
-            time.sleep(0.1)  # Simulate delay
+            if current_fit % (total_fits // 10) == 0:
+                progress = current_fit / total_fits
+                progress_bar.progress(progress)
+                #st.session_state.text_status = f"Processing fits {current_fit}/{total_fits}"
+                text_status.text(f"Processing fits {current_fit}/{total_fits}")
+            #time.sleep(0.1)  # Simulate delay
     
     GS_cv.fit(X, y)
     return GS_cv
 
+# Initialize progress bar and text status in session state
+st.session_state.progress_bar = st.progress(0)
+st.session_state.text_status = "Starting GridSearchCV..."
+
 st.write('The fitting process will now begin. Pay attention to the progress bar to track how many fits have been completed.')
 # Run GS CV on the streamlit, displaying results and progress
+
 with st.spinner("Running…"):
-    GS_fit = prog_GS(X_train, y_train)
-st.text(GS_fit)
+        GS_fit = prog_GS(X_train, y_train, st.session_state.progress_bar)
+    
+# Update session state with the result
+st.session_state.GS_fit = GS_fit
+st.session_state.computation_done = True
 
-st.write('The following are ALL the best parameters for the Bagging Regressor model when fitted to the most accurate Decision Tree model.')
-st.text(GS_fit.best_estimator_)
+# Initialize session state variables
+if 'computation_done' not in st.session_state:
+    st.session_state.computation_done = False
 
-st.write('The following are the best hyperparameters for the Bagging Regressor model.')
-st.text(GS_fit.best_params_)
+# Start the background computation if it hasn't been started
+if not st.session_state.computation_done:
+    threading.Thread(target=run_grid_search).start()
+
+# Run GS CV on the streamlit, displaying results and progress
+if st.session_state.computation_done:
+    st.text(GS_fit)
+
+    st.write('Below are ALL the best parameters for the Decision Tree model when GridSearch CV is fitted to the training data.')
+    st.text(GS_fit.best_estimator_)
+
+    st.write('Below are the best hyperparameters for the Decision Tree model.')
+    st.text(GS_fit.best_params_)
 
 #Returning the final accuracy of the best regression prediction model 
 st.divider()
