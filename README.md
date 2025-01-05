@@ -41,4 +41,8 @@ streamlit run 1_🌎_Main_Page.py
 9. This input should take you to a local host tab on your broswer tab displaying the home page (1_🌎_Main_Page.py) of the website
 10. To view a different page, simply click on the page on the left sidebar 
 
+# Making this app public
 
+Follow the instructions provided by streamlit.io and create a github repository like I did. This will allow you to publish the app, the github code acting as a backend. 
+
+To see my public app, go to https://eq-pred-app-qnpdgcwnl482xgvfvnwkyp.streamlit.app/
