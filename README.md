@@ -1,3 +1,14 @@
+# Why this app? 
+
+- Provide an application platform for people to experience both the backend and frontend design of machine learning prediction systems
+- While this application does not offer a thorough walkthrough of the code used, we explain the problem solving process that leads to making accurate predictions
+- This application may mirror the focus of programming websites and articles like GeeksforGeeks or Medium
+- For this application, we will showcase an environmental monitoring algorithm trained at predicting the magnitude of earthquakes around the world
+
+
+I built this app for a technical internship under the company Billion Dollar Startup Ideas. The contents of this app are applicable to all people, non-coders included. I originally intended for this app to be understood by the company CEO (an author, not a coder) in the final presentation I delivered to him, showcasing each feature of the app. It contains multiple versions of an earthquake magnitude prediction algorithm, including regression and classification methods, a spatial map of all the earthquakes from the dataset I predicted from, and a earthquake-safety chatbot created by my internship partner. Feel free to explore on your own by reading the directions below!
+
+
 # On Visual Studio Code
 
 ## Installing Pip (Mac) 
